@@ -3,7 +3,31 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+
+typedef struct linked_list{ 
+
+    char * item; 
+
+    struct linked_list *pNext;  
+
+} LINKED_LIST;  
+
+LINKED_LIST* addToList(LINKED_LIST *pNew, LINKED_LIST *pStart, LINKED_LIST *pEnd, char *line) {
+	pNew->item = line;  
+    pNew->pNext = NULL;  
+    if (pStart == NULL) { 
+        pStart = pNew;  
+        pEnd = pNew;  
+    } else { 
+        pEnd->pNext = pNew;  
+        pEnd = pNew;  
+    } 
+	return pStart; 
+}
+
 int main(int argc, char * argv[]) {
+	LINKED_LIST *pStart = NULL, *pEnd = NULL; 
+    LINKED_LIST *pNew, *ptr;  
 	if (argc == 0) {
 		printf("No command-line arguments given\n");
 	}
@@ -38,17 +62,34 @@ int main(int argc, char * argv[]) {
 			size_t len;
 			int read; 
 			int lineCounter=0; 
-			//char lines[];
+			if((pNew = (LINKED_LIST*)malloc(sizeof(LINKED_LIST))) == NULL) { 
+                perror("Error in memory allocation");  
+                 exit(1);  
+        } 
 			do {
 				read = getline(&line, &len, inputFile);
-				if (read != -1 ) {
-					printf("%s", line);
+				//if (read != -1 ) {
+				pStart = addToList(pNew, pStart, pEnd, line);
 					//fprintf(outputFile, line);
 					lineCounter++; 
-				}
+				//}
 			} while (read > 1);
-			printf("Lines in the file: %d\n", lineCounter);
 
+			printf("Lines in the file: %d\n", lineCounter);
+			//Printing the elements of linked list
+			ptr = pStart;  
+                while(ptr != NULL) { 
+                    printf("Elements: %s, ", ptr->item); 
+                    ptr=ptr->pNext;  
+                }
+			//Ending program, freeing all memory:					 
+			 ptr = pStart;
+            while(ptr != NULL) { 
+                pStart = ptr->pNext;  
+                free(ptr);  
+                ptr = pStart; 
+
+            }  
 			free(line); 
 			fclose(inputFile);
 
