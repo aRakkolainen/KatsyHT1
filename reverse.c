@@ -16,13 +16,17 @@ LINKED_LIST *addToList(LINKED_LIST *, char *,  int);
 LINKED_LIST *printInReverseOrder(LINKED_LIST *);
 LINKED_LIST * addToList(LINKED_LIST *pStart, char *line, int lineNum) {
 	LINKED_LIST *pNew, *ptr;
+	char * newLine = (char *) malloc(sizeof(line));
 	//printf("%s", line); 
 	if ((pNew = (LINKED_LIST*)malloc(sizeof(LINKED_LIST))) == NULL) {
 		fprintf(stderr, "error: malloc failed");
 		exit(1);
 	}
 	//Setting the values of the new item (line read from file) 
-	pNew->line = line; 
+	printf("%s", line);
+	strcpy(newLine, line);
+	strcpy(pNew->line, newLine);
+	printf("%s", pNew->line);
 	pNew->iLinenumber=lineNum; 
     pNew->pNext = NULL;  
     if (pStart == NULL) { 
@@ -34,13 +38,14 @@ LINKED_LIST * addToList(LINKED_LIST *pStart, char *line, int lineNum) {
 			ptr->pNext = pNew;
 		}
     }
+	//strcpy(pNew->line, line);
 	return pStart;   
 }
 
 LINKED_LIST *printInReverseOrder(LINKED_LIST *pStart) {
 	LINKED_LIST *ptr = pStart; 
 	while (ptr != NULL) {
-		printf("%s %d\n", ptr->line, ptr->iLinenumber);
+		printf("%d\n", ptr->iLinenumber);
 		ptr = ptr->pNext;
 	}
 	return(pStart);
@@ -93,18 +98,17 @@ int main(int argc, char * argv[]) {
 			} else {
 				//How to use getline() function: https://c-for-dummies.com/blog/?p=5445 
 			// Using getline() function: https://riptutorial.com/c/example/8274/get-lines-from-a-file-using-getline-- 
-		 
-				while ((read = getline(&line, &len, inputFile)) != -1 ) {
+			while ((read = getline(&line, &len, inputFile)) != -1 ) {
 					//printf("%s at line %d ", line, lineCounter);
 					lineCounter++;
-					printf("%s", line);
+					//printf("%s", line);
 					pStart=addToList(pStart, line, lineCounter);
-				}
-			fclose(inputFile);
+			}
 			
 			//printf("Lines in the file: %d\n", lineCounter);
 			//Printing the elements of linked list
 			printInReverseOrder(pStart);
+			fclose(inputFile);
 			//Ending program, freeing all memory:					 
 			free(line);
 			freeTheMemory(pStart); 
