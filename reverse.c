@@ -13,6 +13,7 @@ typedef struct linked_list{
 //Introducing functions: 
 
 LINKED_LIST *addToList(LINKED_LIST *, int, char *,  int);
+LINKED_LIST * readInputFileToList(char[]); 
 void printInReverseOrder(LINKED_LIST *);
 LINKED_LIST * writeReverseOrderToOutputFile(LINKED_LIST *, FILE *);
 LINKED_LIST *freeTheMemory(LINKED_LIST *);
@@ -49,26 +50,41 @@ LINKED_LIST * addToList(LINKED_LIST *pStart, int lineLength, char *line, int lin
     }
 	return pStart;   
 }
+LINKED_LIST * readInputFileToList(char inputFileName[30]) {
+	FILE *inputFile; 
+	LINKED_LIST *pStart = NULL;
+	char *line=NULL; 
+	size_t len;
+	int readLineLength; 
+	int lineCounter=1;
 
+	if ((inputFile = fopen(inputFileName, "r")) == NULL) {
+			fprintf(stderr, "error: cannot open file '%s'\n", inputFileName);
+			exit(1);
+	} else {
+		//How to use getline() function: https://c-for-dummies.com/blog/?p=5445 
+				// Using getline() function: https://riptutorial.com/c/example/8274/get-lines-from-a-file-using-getline-- 
+			do {
+				readLineLength = getline(&line, &len, inputFile); 
+				if (readLineLength != -1) {
+					pStart=addToList(pStart, readLineLength, line, lineCounter);
+					lineCounter++;  
+				}
+			} while ( readLineLength > 1);
+	}
+	free(line);
+	fclose(inputFile);
+	return(pStart);
+}
 // This function is based on this source: https://www.geeksforgeeks.org/print-reverse-of-a-linked-list-without-actually-reversing/ 
 void printInReverseOrder(LINKED_LIST *pStart) {
-	//LINKED_LIST *ptr = pStart; 
-	//printf("Line number: %d, content: %s", ptr->iLinenumber, ptr->line);
-	//ptr = ptr->pNext; 
-	//printf("Line number: %d, content: %s", ptr->iLinenumber, ptr->line);
-	/*while (ptr != NULL) {
-		printf("Line number: %d, content: %s", ptr->iLinenumber, ptr->line);
-		ptr = ptr->pNext;
-	}*/
-
 	if (pStart == NULL) {
 		return; 
 	}
 	printInReverseOrder(pStart->pNext);
-	printf("%s", pStart->line);
-
+	fprintf(stdout, "%s", pStart->line);
 }
-
+// This function is based on this source: https://www.geeksforgeeks.org/print-reverse-of-a-linked-list-without-actually-reversing/ Difference is using fprintf instead of printf
 LINKED_LIST * writeReverseOrderToOutputFile(LINKED_LIST *pStart, FILE *output) { 
 	if (pStart == NULL) {
 		return pStart; 
@@ -83,20 +99,14 @@ LINKED_LIST *freeTheMemory(LINKED_LIST *pStart) {
 	while (ptr != NULL) {
 		pStart = ptr->pNext; 
 		free(ptr);
-		//free(ptr->line);
 		ptr = pStart; 
 	}
 	return(pStart);
 }
 int main(int argc, char * argv[]) {  
 	LINKED_LIST *pStart = NULL;
-	char *line=NULL; 
-	size_t len;
-	int readLineLength; 
-	int lineCounter=1;
 	char inputFileName[30];
 	char outputFileName[30];
-	FILE *inputFile;
 	FILE *outputFile;
 	if (argc == 0) {
 		printf("No command-line arguments given\n");
@@ -105,64 +115,30 @@ int main(int argc, char * argv[]) {
 		printf("Standard input and output\n");
 
 	} else if (argc == 2) {
-		printf("Reading input file and reversing to stdin\n");
+		printf("Reading input file %s and reversing to stdout\n", argv[1]);
 		strcpy(inputFileName, argv[1]);
-		if ((inputFile = fopen(inputFileName, "r")) == NULL) {
-			fprintf(stderr, "error: cannot open file '%s'\n", inputFileName);
-			exit(1);
-		} else {
-				//How to use getline() function: https://c-for-dummies.com/blog/?p=5445 
-				// Using getline() function: https://riptutorial.com/c/example/8274/get-lines-from-a-file-using-getline-- 
-			do {
-				readLineLength = getline(&line, &len, inputFile); 
-				if (readLineLength != -1) {
-					pStart=addToList(pStart, readLineLength, line, lineCounter);
-					lineCounter++;  
-				}
-			} while ( readLineLength > 1);
-			}
-			fclose(inputFile);
-			printInReverseOrder(pStart);
-			freeTheMemory(pStart);
+		pStart = readInputFileToList(inputFileName);
+		printInReverseOrder(pStart);
 		} else if (argc == 3) {
 			if (argv[1] == argv[2]) {
 				perror("Input and ouput file must differ\n"); 
 				exit(1);
 			}
-			printf("Reading input.txt and reversing the content in the file output.txt\n");
+			printf("Reading %s and reversing the content in the file %s\n", argv[1], argv[2]);
 			strcpy(inputFileName, argv[1]);
 			strcpy(outputFileName, argv[2]);
-		// Opening the input file 
-			if ((inputFile = fopen(inputFileName, "r")) == NULL) {
-				fprintf(stderr, "error: cannot open file '%s'\n", inputFileName);
-				exit(1);
+			if((outputFile = fopen(outputFileName, "w")) == NULL) {
+				fprintf(stderr, "error: cannot open file '%s'\n", outputFileName);
 			} else {
-				if((outputFile = fopen(outputFileName, "w")) == NULL) {
-					fprintf(stderr, "error: cannot open file '%s'\n", outputFileName);
-				} else {
-				//How to use getline() function: https://c-for-dummies.com/blog/?p=5445 
-				// Using getline() function: https://riptutorial.com/c/example/8274/get-lines-from-a-file-using-getline-- 
-				do {
-					readLineLength = getline(&line, &len, inputFile); 
-					if (readLineLength != -1) {
-						pStart=addToList(pStart, readLineLength, line, lineCounter);
-						lineCounter++;  
-					}
-				} while ( readLineLength > 1);
-
+				pStart = readInputFileToList(inputFileName);
 				writeReverseOrderToOutputFile(pStart, outputFile);
-				//Ending program, closing files and freeing all memory:	
+				//Closing the output file
 				fclose(outputFile);
-				fclose(inputFile);				 
-				free(line);
-				freeTheMemory(pStart); 
-
 		}
 	}
-	//Writing to input.txt file: 
-	
-
-	//Reading input.txt reverse and writing to output.txt
-	}
+	// If there was stored anything to linked list, freeing that memory now
+	if (pStart != NULL) {
+		freeTheMemory(pStart);
+	} 
 	return(0);
 }
