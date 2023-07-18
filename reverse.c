@@ -1,5 +1,5 @@
 //Harjoitusprojekti 1: Warming up program: Reverse.c
-//Sources: We have taken help from the C-programming guide especially with linked list structure and file handling: https://lutpub.lut.fi/bitstream/handle/10024/162908/Nikula2021-COhjelmointiopasV21.pdf?sequence=1&isAllowed=y
+//Sources:I have taken help from the C-programming guide especially with linked list structure and file handling: https://lutpub.lut.fi/bitstream/handle/10024/162908/Nikula2021-COhjelmointiopasV21.pdf?sequence=1&isAllowed=y
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
