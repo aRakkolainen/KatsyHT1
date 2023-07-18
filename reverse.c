@@ -1,5 +1,5 @@
 //Harjoitusprojekti 1: Warming up program: Reverse.c
-//Sources: We have taken help from the C-programming guide especially with linked list structure and file handling: https://lutpub.lut.fi/bitstream/handle/10024/162908/Nikula2021-COhjelmointiopasV21.pdf?sequence=1&isAllowed=y
+//Sources: I have taken help from the C-programming guide especially with linked list structure and file handling: https://lutpub.lut.fi/bitstream/handle/10024/162908/Nikula2021-COhjelmointiopasV21.pdf?sequence=1&isAllowed=y
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -135,23 +135,25 @@ int main(int argc, char * argv[]) {
 		pStart = readInputFileToList(inputFileName);
 		printInReverseOrder(pStart);
 	} else if (argc == 3) { // Reading the input file specified by the user and reversing it to output file
-		if (argv[1] == argv[2]) {
-			perror("Input and ouput file must differ\n"); 
+		//Checking if file names are the same is based on this website: https://www.programiz.com/c-programming/library-function/string.h/strcmp
+		if (strcmp(argv[1], argv[2]) == 0) {
+			fprintf(stderr, "Input and ouput file must differ\n"); 
 			exit(1);
-		}
-		printf("Reading %s and reversing the content in the file %s\n", argv[1], argv[2]);
-		strcpy(inputFileName, argv[1]);
-		strcpy(outputFileName, argv[2]);
-		if((outputFile = fopen(outputFileName, "w")) == NULL) {
-			fprintf(stderr, "error: cannot open file '%s'\n", outputFileName);
 		} else {
-			pStart = readInputFileToList(inputFileName);
-			writeReverseOrderToOutputFile(pStart, outputFile);
-			//Closing the output file
-			fclose(outputFile);
+			printf("Reading %s and reversing the content in the file %s\n", argv[1], argv[2]);
+			strcpy(inputFileName, argv[1]);
+			strcpy(outputFileName, argv[2]);
+			if((outputFile = fopen(outputFileName, "w")) == NULL) {
+				fprintf(stderr, "error: cannot open file '%s'\n", outputFileName);
+			} else {
+				pStart = readInputFileToList(inputFileName);
+				writeReverseOrderToOutputFile(pStart, outputFile);
+				//Closing the output file
+				fclose(outputFile);
+			}
 		}
 		//Just test case: 
-		int read; 
+		/*int read; 
 		char *line; 
 		size_t len;
 		if((outputFile = fopen(outputFileName, "r")) == NULL) {
@@ -166,7 +168,10 @@ int main(int argc, char * argv[]) {
 			} while (read > 1);
 			//Closing the output file
 			fclose(outputFile);
-		}
+		}*/
+	} else {
+		printf("usage: reverse <input> <output>\n");
+		exit(1);
 	}
 	// If there was stored anything to linked list, freeing that memory now
 	if (pStart != NULL) {
